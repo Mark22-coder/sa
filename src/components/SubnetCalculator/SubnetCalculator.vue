@@ -1,14 +1,11 @@
-<template>
+﻿<template>
   <div class="subnet-calculator">
     <h2>Калькулятор подсетей</h2>
     
     <form @submit.prevent="calculate" class="calculator-form">
-      <div class="form-group">
-        <label for="ip-address">IP адрес:</label>
-        <input
-          id="ip-address"
+      <UiField label="IP адрес:">
+        <UiInput
           v-model="ipAddress"
-          type="text"
           placeholder="192.168.1.150"
           :class="{ 'error': !isValidIp && ipAddress }"
           @keyup.enter="calculate"
@@ -16,28 +13,23 @@
         <span v-if="!isValidIp && ipAddress" class="error-message">
           Неверный формат IP адреса
         </span>
-      </div>
+      </UiField>
 
-      <div class="form-group">
-        <label for="netmask">Маска подсети:</label>
-        <select
-          id="netmask"
+      <UiField label="Маска подсети:">
+        <UiSelect
           v-model="selectedMask"
+          :options="maskOptions"
           @keyup.enter="calculate"
-        >
-          <option v-for="option in MASK_OPTIONS" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
+        />
+      </UiField>
 
-      <button
+      <UiButton
         type="submit"
         :disabled="!isFormValid"
-        class="calculate-btn"
+        layout="primary"
       >
         Рассчитать
-      </button>
+      </UiButton>
     </form>
 
     <div v-if="results" class="results">
@@ -60,9 +52,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import UiButton from './UiButton.vue'
+import UiInput from './UiInput.vue'
+import UiField from './UiField.vue'
+import UiSelect from './UiSelect.vue'
 import { MASK_OPTIONS } from '../../utils/maskOptions'
 import { isIpValid } from '../../utils/ipValidation'
 import { getNetworkAddress, getAddressesCount } from '../../utils/networkCalculations'
+
+const maskOptions = MASK_OPTIONS.map(option => option.label);
 
 interface CalculationResult {
   ip: string
@@ -105,51 +103,9 @@ function calculate() {
   margin-bottom: 24px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-label {
-  font-weight: bold;
-  color: var(--color-text);
-}
-
-input, select {
-  padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-input.error {
-  border-color: var(--color-error);
-}
-
 .error-message {
   color: var(--color-error);
   font-size: 12px;
-}
-
-.calculate-btn {
-  padding: 12px 24px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-.calculate-btn:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-}
-
-.calculate-btn:disabled {
-  background-color: var(--color-gray);
-  cursor: not-allowed;
 }
 
 .results {
